@@ -7,6 +7,8 @@ const assetRouter = require("./api/asset/routes.js");
 
 const PORT = process.env.PORT || 8000;
 
+app.use(express.json());
+
 // Routes
 app.get("/", (req, res) => {
     res.json({succes: true})

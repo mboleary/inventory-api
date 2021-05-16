@@ -61,8 +61,41 @@ function getItem(table, id, opts) {
     })
 }
 
+function insert(table, data) {
+    return new Promise((res, rej) => {
+        let sql = "";
+        let values = [];
+        let colNames = [];
+
+        const keys = Object.keys(data);
+        for (const k of keys) {
+            colNames.push(k);
+            if (data[k] || data[k] === 0 || data[k] === "") {
+                values.push(data[k]);
+            } else {
+                values.push(null);
+            }
+        }
+
+        sql = `INSERT INTO ${table} (${colNames.join(",")}) VALUES (${colNames.map(() => "?").join(",")})`;
+
+        console.log("SQL:", sql, values);
+        
+        db.run(sql, values, function(err, row) {
+            console.log(row, err);
+            if (err) {
+                console.error("Error inserting data:", err);
+                rej(err);
+                return;
+            }
+            res({success: true});
+        });
+    })
+}
+
 module.exports = {
     close,
     sql,
-    getItem
+    getItem,
+    insert
 }

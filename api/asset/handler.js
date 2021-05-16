@@ -44,7 +44,31 @@ async function getItem(req, res) {
 }
 
 async function createItem(req, res) {
-
+    try {
+        if (!req.body) {
+            res.status(400).json({
+                code: `${ERROR_PREFIX}.post.badrequest`,
+                message: "Missing body"
+            });
+            return;
+        }
+        console.log("Body:", req.body);
+        let toSave = {};
+        Object.assign(toSave, req.body);
+        let now = (new Date()).toISOString();
+        toSave.created_at = now;
+        toSave.updated_at = now;
+        toSave.deleted = 0;
+        const item = await db.insert(TABLE_NAME, toSave);
+        res.json(item);
+    } catch (err) {
+        console.error("Error creating item", err);
+        res.status(500).json({
+            code: `${ERROR_PREFIX}.post.err`,
+            message: "Error creating item",
+            error: err
+        });
+    }
 }
 
 async function updateItem(req, res) {
