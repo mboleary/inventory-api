@@ -1,11 +1,11 @@
 /**
- * Contains the API code for reading from and writing to assets
+ * Contains the API code for reading from and writing to images
  */
 
 const db = require("../../util/database.js");
 
-const TABLE_NAME = "asset";
-const ERROR_PREFIX = "asset";
+const TABLE_NAME = "image";
+const ERROR_PREFIX = "image";
 
 async function getAllItems(req, res) {
     try {

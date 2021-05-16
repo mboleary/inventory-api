@@ -58,7 +58,7 @@ function getItem(table, id, opts = {}) {
     })
 }
 
-function insert(table, data) {
+function insertItem(table, data) {
     return new Promise((res, rej) => {
         let sql = "";
         let values = [];
@@ -90,7 +90,7 @@ function insert(table, data) {
     })
 }
 
-function update(table, id, data, opts = {}) {
+function updateItem(table, id, data, opts = {}) {
     return new Promise((res, rej) => {
         let sql = "";
         let params = {
@@ -108,7 +108,6 @@ function update(table, id, data, opts = {}) {
 
         const keys = Object.keys(data);
         for (const k of keys) {
-            if (k === temp.pkField || k === temp.deletedField) continue;
             colNames.push(k);
             if (data[k] || data[k] === 0 || data[k] === "") {
                 // values.push(data[k]);
@@ -125,7 +124,34 @@ function update(table, id, data, opts = {}) {
         
         db.run(sql, params, function(err) {
             if (err) {
-                console.error("Error inserting data:", err);
+                console.error("Error updating data:", err);
+                rej(err);
+                return;
+            }
+            res({success:true, changes:this.changes, newId: this.lastID});
+        });
+    })
+}
+
+function deleteItem(table, id, opts = {}) {
+    return new Promise((res, rej) => {
+        let sql = "";
+        let params = {
+            $id: id
+        }
+
+        let temp = {
+            pkField: "id",
+            deletedField: "deleted"
+        };
+
+        sql = `UPDATE ${table} SET ${temp.deletedField} = 1 WHERE ${temp.pkField} = $id AND ${temp.deletedField} = 0`;
+
+        console.log("SQL:", sql, params);
+        
+        db.run(sql, params, function(err) {
+            if (err) {
+                console.error("Error deleting data:", err);
                 rej(err);
                 return;
             }
@@ -138,6 +164,7 @@ module.exports = {
     close,
     sql,
     getItem,
-    insert,
-    update
+    insertItem,
+    updateItem,
+    deleteItem
 }
