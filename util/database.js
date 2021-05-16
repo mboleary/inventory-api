@@ -17,9 +17,20 @@ function close() {
     db.close();
 }
 
-// function 
+function sql(sql, params) {
+    return new Promise((res, rej) => {
+        db.all(sql, params, (err, rows) => {
+            if (err) {
+                console.error("SQL Error:", err);
+                rej(err);
+                return;
+            }
+            res(rows);
+        })
+    });
+}
 
 module.exports = {
     close,
-
+    sql
 }

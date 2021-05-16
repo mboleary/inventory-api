@@ -3,12 +3,16 @@ const app = express();
 
 const {close} = require("./util/database.js");
 
+const assetRouter = require("./api/asset/routes.js");
+
 const PORT = process.env.PORT || 8000;
 
 // Routes
 app.get("/", (req, res) => {
     res.json({succes: true})
 });
+
+app.use('/asset', assetRouter);
 
 const httpServer = app.listen(PORT, () => {
     console.log("Inventory API started on port " + PORT);
