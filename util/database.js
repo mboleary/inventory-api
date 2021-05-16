@@ -30,7 +30,39 @@ function sql(sql, params) {
     });
 }
 
+function getItem(table, id, opts) {
+    return new Promise((res, rej) => {
+        let sql = "";
+        // The dollar sign is necessary otherwise errors will be thrown
+        let params = {
+            $id: id
+        };
+        
+        let temp = {
+            pkField: "id",
+            deletedField: "deleted"
+        };
+        
+        Object.assign(temp, opts);
+        
+        sql = `SELECT * FROM ${table} WHERE ${temp.pkField}=$id AND ${temp.deletedField}=0 LIMIT 1`;
+
+        console.log(temp, sql, params);
+        
+        db.get(sql, params, (err, row) => {
+            console.log(row, err);
+            if (err) {
+                console.error("SQL Error:", err);
+                rej(err);
+                return;
+            }
+            res(row);
+        });
+    })
+}
+
 module.exports = {
     close,
-    sql
+    sql,
+    getItem
 }

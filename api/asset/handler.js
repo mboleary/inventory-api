@@ -5,34 +5,62 @@
 const db = require("../../util/database.js");
 
 const TABLE_NAME = "asset";
+const ERROR_PREFIX = "asset";
 
 async function getAllItems(req, res) {
-    const dataset = await db.sql(`SELECT * FROM ${TABLE_NAME} WHERE deleted = 0`);
-    res.json(dataset);
+    try {
+        const dataset = await db.sql(`SELECT * FROM ${TABLE_NAME} WHERE deleted = 0`);
+        res.json(dataset);
+    } catch (err) {
+        console.error("Error getting all items", err);
+        res.status(500).json({
+            code: `${ERROR_PREFIX}.get.err`,
+            message: "Error getting all items",
+            error: err
+        });
+    }
 }
 
-function getItem(req, res) {
+async function getItem(req, res) {
+    try {
+
+        const item = await db.getItem(TABLE_NAME, req.params.id);
+        if (!item) {
+            res.status(404).json({
+                code: `${ERROR_PREFIX}.get.notfound`,
+                message: "404 not found"
+            });
+            return;
+        }
+        res.json(item);
+    } catch (err) {
+        console.error("Error getting item", err);
+        res.status(500).json({
+            code: `${ERROR_PREFIX}.get.err`,
+            message: "Error getting item",
+            error: err
+        });
+    }
+}
+
+async function createItem(req, res) {
 
 }
 
-function createItem(req, res) {
+async function updateItem(req, res) {
 
 }
 
-function updateItem(req, res) {
+async function updatePartialItem(req, res) {
 
 }
 
-function updatePartialItem(req, res) {
-
-}
-
-function deleteItem(req, res) {
+async function deleteItem(req, res) {
 
 }
 
 // Creates the table if we're starting with a new Sqlite file
-function createTable() {
+async function createTable() {
 
 }
 
