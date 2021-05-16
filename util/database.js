@@ -30,7 +30,7 @@ function sql(sql, params) {
     });
 }
 
-function getItem(table, id, opts) {
+function getItem(table, id, opts = {}) {
     return new Promise((res, rej) => {
         let sql = "";
         // The dollar sign is necessary otherwise errors will be thrown
@@ -46,11 +46,8 @@ function getItem(table, id, opts) {
         Object.assign(temp, opts);
         
         sql = `SELECT * FROM ${table} WHERE ${temp.pkField}=$id AND ${temp.deletedField}=0 LIMIT 1`;
-
-        console.log(temp, sql, params);
         
         db.get(sql, params, (err, row) => {
-            console.log(row, err);
             if (err) {
                 console.error("SQL Error:", err);
                 rej(err);
@@ -81,14 +78,58 @@ function insert(table, data) {
 
         console.log("SQL:", sql, values);
         
-        db.run(sql, values, function(err, row) {
-            console.log(row, err);
+        db.run(sql, values, function(err) {
+            // the function context is needed here
             if (err) {
                 console.error("Error inserting data:", err);
                 rej(err);
                 return;
             }
-            res({success: true});
+            res({success:true, changes:this.changes, newId: this.lastID});
+        });
+    })
+}
+
+function update(table, id, data, opts = {}) {
+    return new Promise((res, rej) => {
+        let sql = "";
+        let params = {
+            $id: id
+        }
+        // let values = [];
+        let colNames = [];
+
+        let temp = {
+            pkField: "id",
+            deletedField: "deleted"
+        };
+        
+        Object.assign(temp, opts);
+
+        const keys = Object.keys(data);
+        for (const k of keys) {
+            if (k === temp.pkField || k === temp.deletedField) continue;
+            colNames.push(k);
+            if (data[k] || data[k] === 0 || data[k] === "") {
+                // values.push(data[k]);
+                params["$" + k] = data[k];
+            } else {
+                // values.push(null);
+                params["$" + k] = null;
+            }
+        }
+
+        sql = `UPDATE ${table} SET ${colNames.map((item) => `${item} = $${item}`).join(", ")} WHERE ${temp.pkField} = $id AND ${temp.deletedField} = 0`;
+
+        console.log("SQL:", sql, params);
+        
+        db.run(sql, params, function(err) {
+            if (err) {
+                console.error("Error inserting data:", err);
+                rej(err);
+                return;
+            }
+            res({success:true, changes:this.changes, newId: this.lastID});
         });
     })
 }
@@ -97,5 +138,6 @@ module.exports = {
     close,
     sql,
     getItem,
-    insert
+    insert,
+    update
 }

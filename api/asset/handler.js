@@ -60,6 +60,7 @@ async function createItem(req, res) {
         toSave.updated_at = now;
         toSave.deleted = 0;
         const item = await db.insert(TABLE_NAME, toSave);
+        console.log("Item:", item);
         res.json(item);
     } catch (err) {
         console.error("Error creating item", err);
@@ -72,7 +73,45 @@ async function createItem(req, res) {
 }
 
 async function updateItem(req, res) {
+    try {
+        if (!req.body) {
+            res.status(400).json({
+                code: `${ERROR_PREFIX}.put.badrequest`,
+                message: "Missing body"
+            });
+            return;
+        }
+        const id = req.params.id;
 
+        const prevEntry = await db.getItem(TABLE_NAME, id);
+
+        if (!prevEntry) {
+            res.status(404).json({
+                code: `${ERROR_PREFIX}.put.notfound`,
+                message: "404 not found"
+            });
+            return;
+        }
+
+        console.log("Prev Entry:", prevEntry);
+
+        let toSave = {};
+        Object.assign(toSave, req.body);
+        let now = (new Date()).toISOString();
+        toSave.id = prevEntry.id;
+        toSave.created_at = prevEntry.created_at;
+        toSave.updated_at = now;
+        toSave.deleted = 0;
+        const item = await db.update(TABLE_NAME, id, toSave);
+        res.json(item);
+    } catch (err) {
+        console.error("Error creating item", err);
+        res.status(500).json({
+            code: `${ERROR_PREFIX}.put.err`,
+            message: "Error creating item",
+            error: err
+        });
+    }
 }
 
 async function updatePartialItem(req, res) {
