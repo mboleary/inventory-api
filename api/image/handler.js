@@ -3,6 +3,7 @@
  */
 
 const db = require("../../util/database.js");
+const { v4: uuidv4 } = require("uuid");
 
 const TABLE_NAME = "image";
 const ERROR_PREFIX = "image";
@@ -186,6 +187,47 @@ async function deleteItem(req, res) {
     }
 }
 
+async function uploadFile(req, res) {
+    // File is in req.file
+    try {
+        if (!req.body) {
+            res.status(400).json({
+                code: `${ERROR_PREFIX}.upload.badrequest`,
+                message: "Missing body"
+            });
+            return;
+        }
+        if (!req.file) {
+            res.status(400).json({
+                code: `${ERROR_PREFIX}.upload.badrequest`,
+                message: "Missing file"
+            });
+            return;
+        }
+
+        console.log("Body:", req.body, req.file);
+        let toSave = {};
+        Object.assign(toSave, req.body);
+        let now = (new Date()).toISOString();
+        toSave.created_at = now;
+        toSave.updated_at = now;
+        toSave.deleted = 0;
+        toSave.image_path = req.file.filename;
+        toSave.name = req.file.originalname;
+        const item = await db.insertItem(TABLE_NAME, toSave);
+        console.log("Item:", item);
+        res.json(item);
+    } catch (err) {
+        console.error("Error creating item", err);
+        res.status(500).json({
+            code: `${ERROR_PREFIX}.post.err`,
+            message: "Error creating item",
+            error: err
+        });
+    }
+
+}
+
 // Creates the table if we're starting with a new Sqlite file
 async function createTable() {
 
@@ -198,5 +240,6 @@ module.exports = {
     updateItem,
     updatePartialItem,
     deleteItem,
+    uploadFile,
     createTable
 }

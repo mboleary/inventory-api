@@ -9,8 +9,9 @@ const DB_FILE = process.env.DB_FILE || "./file/db.sqlite";
 let db = new sqlite.Database(DB_FILE, (err) => {
     if (err) {
         console.error("Error loading the database");
+    } else {
+        console.log("DB Loaded from " + DB_FILE);
     }
-    console.log("DB Loaded from " + DB_FILE);
 });
 
 function close() {
