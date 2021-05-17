@@ -3,7 +3,6 @@
  */
 
 const db = require("../../util/database.js");
-const { v4: uuidv4 } = require("uuid");
 
 const TABLE_NAME = "image";
 const ERROR_PREFIX = "image";

@@ -86,7 +86,7 @@ function insertItem(table, data) {
                 rej(err);
                 return;
             }
-            res({success:true, changes:this.changes, newId: this.lastID});
+            res({success:true, changes:this.changes, newID: this.lastID});
         });
     })
 }
@@ -129,7 +129,7 @@ function updateItem(table, id, data, opts = {}) {
                 rej(err);
                 return;
             }
-            res({success:true, changes:this.changes, newId: this.lastID});
+            res({success:true, changes:this.changes, newID: this.lastID});
         });
     })
 }
@@ -156,7 +156,7 @@ function deleteItem(table, id, opts = {}) {
                 rej(err);
                 return;
             }
-            res({success:true, changes:this.changes, newId: this.lastID});
+            res({success:true, changes:this.changes, newID: this.lastID});
         });
     })
 }
