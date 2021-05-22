@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cors = require('cors');
 
 const {close} = require("./util/database.js");
 
@@ -9,6 +10,7 @@ const imagesRouter = require("./api/image/routes.js");
 
 const PORT = process.env.PORT || 8000;
 
+app.use(cors())
 app.use(express.json());
 
 // Routes
